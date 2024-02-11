@@ -6,3 +6,4 @@ app/__pycache__/*
 app/model/__pycache__/*
 __pycache__/*
 tmp/*
+.idea/*

@@ -7,20 +7,24 @@ from app.utils.utils import Utils
 from app.service.image_service import ImageService, ManipulateImageService
 
 
-@app.route('/')
-def index() -> str:
-    """
-    Home endpoint.
-    ---
-    responses:
-      200:
-        description: A simple Hello World message.
-    """
-    return 'Hello, World!'
-
 
 @app.route('/process-image', methods=['POST'])
 def manipulate_image():
+    """
+    Endpoint to process an image.
+    ---
+    parameters:
+      - name: image
+        in: formData
+        type: file
+        required: true
+        description: The image file to be processed.
+    responses:
+      200:
+        description: The processed image.
+      400:
+        description: Bad request if no image is provided or no image file is selected.
+    """
     # Check if the post request has the file part
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
