@@ -7,3 +7,9 @@ app/model/__pycache__/*
 __pycache__/*
 tmp/*
 .idea/*
+
+
+deploy.txt
+
+
+ML_KEY.json

@@ -15,7 +15,7 @@ This project is a Flask-based API for a Valentine's Day application. It allows u
 
 ## Deployment
 
-The project is deployed using Google App Engine.
+The project is deployed using Google Cloud Run.
 
 ## Prerequisites
 
@@ -40,13 +40,28 @@ Before running the project locally, ensure you have the following prerequisites 
     pip install -r requirements.txt
     ```
 3. Set up AWS credentials and Google Cloud Platform credentials with appropriate permissions for accessing Rekognition and the classification model.
-
-4. Run the Flask application locally:
+4. Create a .env file in the root directory of your project and add the following environment variables:
 
     ```bash
-    python run.py
+   AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID
+   AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY
+   AWS_REGION=YOUR_AWS_REGION
+   S3_BUCKET_NAME=YOUR_S3_BUCKET_NAME
+   
+   GOOGLE_ENDPOINT_ID=YOUR_GOOGLE_ENDPOINT_ID
+   GOOGLE_PROJECT_ID=YOUR_GOOGLE_PROJECT_ID
+   GOOGLE_REGION=YOUR_GOOGLE_REGION
+   GOOGLE_APPLICATION_CREDENTIALS=ML_KEY.json
+   TOGETHER_AI_API_KEY=YOUR_TOGETHER_AI_API_KEY
+   
+   DEBUG=True
     ```
-5. Access the API at http://localhost:5000.
+5. Run the Flask application locally:
+
+    ```bash
+    python main.py
+    ```
+6. Access the API at http://localhost:5000.
 
 ## API Endpoints
 - /upload: POST endpoint for uploading pictures and receiving modified pictures with custom quotes.
@@ -54,3 +69,43 @@ Before running the project locally, ensure you have the following prerequisites 
 ## Usage
 - Navigate to swagger documentation at http://localhost:5000/apidocs.
 - Send a POST request to the /process-image endpoint with the picture file as a multipart form-data. The API will return a link to the modified picture with a custom quote.
+
+
+# Deployment Guide for My Flask App
+
+## Step 1: Building the Docker Image
+
+Build the Docker image for the Flask app:
+
+   ```bash
+   docker build -t my-flask-app:latest .
+   ```
+
+## Step 2: Authenticating with Google Cloud
+
+Ensure you are authenticated with Google Cloud:
+
+   ```bash
+   gcloud auth login
+   gcloud auth configure-docker
+   ```
+
+## Step 3: Tagging the Docker Image
+
+Tag the Docker image with the appropriate Google Artifact Repository URL. Replace `[Google_Artifact_Repository]` with your actual Google Artifact Repository name.
+
+   ```bash
+   docker tag my-flask-app:latest gcr.io/[Google_Artifact_Repository]/my-flask-app:latest
+   ```
+
+## Step 4: Pushing the Docker Image to Google Artifact Registry
+
+Push the Docker image to Google Artifact Registry:
+
+   ```bash
+   docker push gcr.io/[Google_Artifact_Repository]/my-flask-app:latest
+   ```
+
+## Conclusion
+
+Your Flask app image has been successfully pushed to Google Artifact Registry and is ready for deployment.

@@ -37,6 +37,13 @@ class ImageService:
     google_endpoint_id = app.config.get(Constants.GOOGLE_ENDPOINT_ID)
     google_region = app.config.get(Constants.GOOGLE_REGION)
 
+    mary_prompt = (
+        'My dear princess your eyes hold a universe of love, kindness, and compassion. I am grateful every '
+        'day to be able to look into them')
+    mohammed_prompt = (
+        'I promise to be your protector and provider, supporting you through every moment. You mean the '
+        'world to me.')
+
     # Initialize the prediction client as a class-level variable
     prediction_client = None
 
@@ -207,30 +214,34 @@ class ManipulateImageService:
         image_url = None
         msg = 'NA'
         llm_prompt = 'Reword the following sentence: {}'
+
+        modified_file_name = f'modified_{file_name}'
+        modified_file_path = ''
         if face_with_highest_confidence_that_is_not_unknown.prediction_label == 'Mary':
             modified_file_path = Utils.add_hearts_on_eyes(file_path,
                                                           face_with_highest_confidence_that_is_not_unknown.face_details)
-            mary_prompt = (
-                'My dear princess your eyes hold a universe of love, kindness, and compassion. I am grateful every '
-                'day to be able to look into them')
-            msg = LLMService.get_response(llm_prompt.format(mary_prompt))
+
+            ImageService.mary_prompt = LLMService.get_response(llm_prompt.format(ImageService.mary_prompt))
+
+            msg = ImageService.mary_prompt
 
             # Use the service class to upload the image
-            image_url = ImageService.upload_image_to_s3(f'modified_{file_name}',
+            image_url = ImageService.upload_image_to_s3(modified_file_name,
                                                         modified_file_path)
         elif face_with_highest_confidence_that_is_not_unknown.prediction_label == 'Mohammed':
             modified_file_path = Utils.add_cigar_and_sunglasses(file_path,
                                                                 face_with_highest_confidence_that_is_not_unknown.face_details)
-            mohammed_prompt = (
-                'I promise to be your protector and provider, supporting you through every moment. You mean the '
-                'world to me.')
 
-            msg = LLMService.get_response(llm_prompt.format(mohammed_prompt))
+            ImageService.mohammed_prompt = LLMService.get_response(llm_prompt.format(ImageService.mohammed_prompt))
+            msg = ImageService.mohammed_prompt
 
             # Use the service class to upload the image
-            image_url = ImageService.upload_image_to_s3(f'modified_{file_name}',
+            image_url = ImageService.upload_image_to_s3(modified_file_name,
                                                         modified_file_path)
 
+        os.remove(file_path)
+        os.remove(face_with_highest_confidence_that_is_not_unknown.face_image_path)
+        os.remove(modified_file_path)
         # Return the image URL as JSON
         return jsonify({'image_url': image_url,
                         'prediction_label': face_with_highest_confidence_that_is_not_unknown.prediction_label,
@@ -255,5 +266,7 @@ class ManipulateImageService:
                     face_with_highest_confidence_that_is_not_unknown = google_classifier_api_output[0]
                     face_with_highest_confidence_that_is_not_unknown.face_details = face
                     face_with_highest_confidence_that_is_not_unknown.face_image_path = face_image_path
+                else:
+                    os.remove(face_image_path)
 
         return face_with_highest_confidence_that_is_not_unknown
