@@ -1,11 +1,24 @@
+from typing import Tuple, Dict
+
 from werkzeug.datastructures import FileStorage
 
 from app import app
-from flask import request, jsonify
-from app.utils.utils import Utils
+from flask import request, jsonify, redirect
 
-from app.service.image_service import ImageService, ManipulateImageService
+from app.service.image_service import ManipulateImageService
 
+
+@app.route('/health')
+def health() -> Tuple[Dict[str, str], int]:
+    """
+    Health Check Endpoint.
+    ---
+    responses:
+      200:
+        description: OK if the service is healthy.
+    """
+    return {'status': 'OK',
+            'msg': 'API is up'}, 200
 
 
 @app.route('/process-image', methods=['POST'])
@@ -35,3 +48,10 @@ def manipulate_image():
 
     # process the image
     return ManipulateImageService.manipulate_image(file)
+
+
+# Custom 404 error handler
+@app.errorhandler(404)
+def not_found(error):
+    # Redirect to Swagger UI page
+    return redirect('/apidocs')
