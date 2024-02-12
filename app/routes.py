@@ -40,14 +40,23 @@ def manipulate_image():
     """
     # Check if the post request has the file part
     if 'image' not in request.files:
-        return jsonify({'error': 'No image provided'}), 400
+        return jsonify({'msg': 'No image provided'}), 400
     # Get the file from the request
     file: FileStorage = request.files['image']
     if file.filename == '':
-        return jsonify({'error': 'No selected image file'}), 400
+        return jsonify({'msg': 'No selected image file'}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({'msg': 'Unsupported image format. Please provide a PNG, JPEG, or JPG file.'}), 400
 
     # process the image
     return ManipulateImageService.manipulate_image(file)
+
+
+# Helper function to check if the file is allowed
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg'}
 
 
 # Custom 404 error handler

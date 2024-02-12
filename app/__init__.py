@@ -2,6 +2,7 @@ from flask import Flask
 from dotenv import load_dotenv
 import os
 from flasgger import Swagger
+from flask_cors import CORS
 
 
 class Constants:
@@ -40,6 +41,7 @@ app.config[Constants.DEBUG] = os.getenv(Constants.DEBUG)
 
 # load swagger
 swagger = Swagger(app)
+CORS(app, origins='*', allow_headers='Content-Type')
 
 # Import routes after creating the app instance to avoid circular imports
 from app import routes

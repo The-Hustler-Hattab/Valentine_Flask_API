@@ -243,8 +243,8 @@ class ManipulateImageService:
         os.remove(face_with_highest_confidence_that_is_not_unknown.face_image_path)
         os.remove(modified_file_path)
         # Return the image URL as JSON
-        return jsonify({'image_url': image_url,
-                        'prediction_label': face_with_highest_confidence_that_is_not_unknown.prediction_label,
+        return jsonify({'imageUrl': image_url,
+                        'predictionLabel': face_with_highest_confidence_that_is_not_unknown.prediction_label,
                         'msg': msg}), 200
 
     # this method will return the face with the highest confidence that is not unknown. it will also return the face
