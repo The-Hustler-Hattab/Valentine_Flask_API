@@ -136,6 +136,7 @@ class Utils:
         cv2.imwrite(output_path, image_with_accessories)
 
         return output_path
+
     @staticmethod
     def add_hearts_on_eyes(image_path: str, face_details: dict, heart_scale_factor: float = 0.8) -> str:
         # Load the image
@@ -169,7 +170,7 @@ class Utils:
         x_offset_right_eye = right_eye_center[0] - int(heart_width * 0.5)
         y_offset_right_eye = right_eye_center[1] - int(heart_height * 0.5)
         image_with_hearts = Utils.overlay_transparent(image_with_hearts, heart_resized,
-                                                (x_offset_right_eye, y_offset_right_eye))
+                                                      (x_offset_right_eye, y_offset_right_eye))
 
         # Save the modified image
         output_path = "tmp/output_image_with_hearts.jpg"
@@ -208,3 +209,28 @@ class Utils:
             background[y:y + overlay.shape[0], x:x + overlay.shape[1]] = overlay
 
         return background
+
+    @staticmethod
+    def compress_image(file_path: str, max_size_bytes=5242880) -> None:
+        # Get the size of the image file
+        file_size = os.path.getsize(file_path)
+
+        # Check if the file size is greater than the maximum allowed size
+        if file_size > max_size_bytes:
+            # Open the image
+            img = Image.open(file_path)
+
+            # Calculate the new width and height to maintain the aspect ratio
+            width, height = img.size
+            aspect_ratio = width / height
+            new_width = int((max_size_bytes / file_size) ** 0.5 * width)
+            new_height = int(new_width / aspect_ratio)
+
+            # Resize the image
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+            # Save the compressed image, overwriting the original file
+            img.save(file_path, optimize=True, quality=95, exif=img.info.get('exif'))  # Adjust quality as needed
+            print(f"Image compressed to less than 5 MB. New file size: {os.path.getsize(file_path)} bytes")
+        else:
+            print("Image is already within the size limit.")

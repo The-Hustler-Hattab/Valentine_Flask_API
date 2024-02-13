@@ -59,9 +59,11 @@ class ImageService:
 
     @staticmethod
     def call_facial_detector_api(file_path: str) -> Tuple[Any, List[Dict[str, Any]]]:
+        # Compress the image to reduce the file size if needed
+        Utils.compress_image(file_path)
+
         # Load the image data
         image_data = Utils.read_binary_file(file_path)
-
         # Call Rekognition API to detect faces
         response = rekognition.detect_faces(
             Image={'Bytes': image_data},
@@ -197,11 +199,14 @@ class ManipulateImageService:
         face_with_highest_confidence_that_is_not_unknown: Optional[
             PredictionModel] = ManipulateImageService.get_face_with_highest_confidence(list_of_faces)
         if face_with_highest_confidence_that_is_not_unknown is None:
+            os.remove(file_path)
             return jsonify({'msg': 'No known face detected'}), 400
         elif (face_with_highest_confidence_that_is_not_unknown.prediction_label == 'Mary' and
               face_with_highest_confidence_that_is_not_unknown.face_details["gender"] != 'Female') \
                 or (face_with_highest_confidence_that_is_not_unknown.prediction_label == 'Mohammed' and
                     face_with_highest_confidence_that_is_not_unknown.face_details["gender"] != 'Male'):
+            os.remove(file_path)
+            os.remove(face_with_highest_confidence_that_is_not_unknown.face_image_path)
             return jsonify({'msg': 'No known face detected'}), 400
         else:
             return ManipulateImageService.process_known_face(file_name, file_path,
